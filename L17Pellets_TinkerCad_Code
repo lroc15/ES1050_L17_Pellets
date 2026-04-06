@@ -1,0 +1,45 @@
+//ES1050 Lab 17 Pelletizer Prototype Code (Spring 2026) 
+//By Luca Rocca, Wilkin Dorman, Joshua Jiang, Justin Fraser, Ryan Jayagopal
+
+//Motor Setup
+#include <Servo.h>
+Servo servo_blade; //Creates an object for the blade's servo.
+Servo servo_spool; //Creates an object for the spool's servo.
+
+const int bladeServoPin = 3; //Assigns the blade's servo to pin #3 in a variable.
+const int spoolServoPin = 4; //Assigns the spool's servo to pin #4 in a variable.
+const int bladeSpeed = 75; //Sets the blade's speed to a variable. 0 and 180 are full speed. 90 is halted.
+const int spoolSpeed = 88; //Sets the spool's speed to a variable. 0 and 180 are full speed. 90 is halted.
+
+
+//Safety Setup
+const int upperShutoffSwitch = 0; //Assigns the upper door's safety switch to pin #0.
+const int lowerShutoffSwitch = 1; //Assigns the lower door's safety switch to pin #1.
+const int emergencyStopButton = 2; //Assigns the emergency stop switch to pin #2.
+
+void setup()
+{
+  servo_blade.attach(bladeServoPin, 500, 2500); //Assigns the blade servo's pin, and min/max microsecond pulses.
+  servo_spool.attach(spoolServoPin, 500, 2500); //Assigns the spool servo's pin, and min/max microsecond pulses.
+  pinMode(upperShutoffSwitch, INPUT_PULLUP); //Configures the upper door's safety switch and uses the PULLUP function to ensure it stays high.
+  pinMode(lowerShutoffSwitch, INPUT_PULLUP); //Configures the lower door's safety switch and uses the PULLUP function to ensure it stays high.
+  pinMode(emergencyStopButton, INPUT_PULLUP); //Configures the emergency stop and uses the PULLUP function to ensure it stays high.
+}
+
+void loop()
+{
+  //Assigning variable names to the 3 safety switch pins.
+  int killCheck1 = digitalRead(upperShutoffSwitch);
+  int killCheck2 = digitalRead(lowerShutoffSwitch);
+  int killCheck3 = digitalRead(emergencyStopButton);
+  
+  //If statement to verify that the safety switches are all disabled for the motors to activate.
+  if (killCheck1 == HIGH && killCheck2 == HIGH && killCheck3 == HIGH){
+    servo_blade.write(bladeSpeed); //Setting the blade to spin at a certain rate.
+    servo_spool.write(spoolSpeed); //Setting the spool to spin at a certain rate.
+  }
+  else{ //Triggers a stopping program when one of the three kill switches activates.
+    servo_blade.write(90); //Halts motion of the blade.
+    servo_spool.write(90); //Halts motion of the spool.
+  }
+}
